@@ -1,4 +1,4 @@
-name: "Sign file"
+name: "Prepare Signing Environment"
 description: "Sign a file using a code signing certificate"
 inputs:
   path-to-binary:
