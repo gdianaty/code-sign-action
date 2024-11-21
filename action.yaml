@@ -3,7 +3,7 @@ description: "Sign a file using a code signing certificate"
 inputs:
   path-to-binary:
     description: "The folder that contains the files to sign"
-    required: true
+    required: false
 runs:
   using: "composite"
   steps:
@@ -48,6 +48,7 @@ runs:
       if: ${{ !contains(env.DEPS_INSTALLED, 'TRUE') }}
 
     - name: Sign with smctl Windows
+      if: ${{ inputs.path-to-binary != '' && runner.os == 'Windows' }}  # Combining both conditions
       env:
         GITHUB_WORKSPACE: ${{ github.workspace }}
       run: |
@@ -77,13 +78,13 @@ runs:
       shell: bash
 
     - name: Sign with smctl Linux
+      if: ${{ inputs.path-to-binary != '' && runner.os == 'Linux' }}  # Combining both conditions
       run: |
         file_path="${{ inputs.path-to-binary }}"
         for f in $(find $file_path -type f); do
           echo $f
           smctl sign -v --keypair-alias="${{ env.SM_KEYPAIR_ALIAS }}" --config-file="/tmp/DigiCert One Signing Manager Tools/smtools-linux-x64/pkcs11properties.cfg" --fingerprint "${{ env.SM_CODE_SIGNING_CERT_SHA1_HASH }}" --input "$f"
         done
-      if: runner.os == 'Linux'
       shell: bash
 
     - name: Mark dependencies as installed
